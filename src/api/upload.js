@@ -10,7 +10,7 @@ const BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
  * @returns {Promise<Object>} - JSON response from server
  */
 export async function uploadPortfolio(formData, token) {
-  const res = await fetch(`${BASE}/api/portfolios`, {
+  const res = await fetch(`${BASE}/api/portfolio`, {
     method: "POST",
     headers: {
       // ถ้าใช้ token ให้ใส่ Authorization
