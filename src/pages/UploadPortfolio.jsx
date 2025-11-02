@@ -50,10 +50,9 @@ export default function UploadPortfolio() {
     form.files.forEach(file => fd.append("files", file));
 
     try {
-      const result = await uploadPortfolio(fd);
-      console.log("uploaded:", result);
-      localStorage.removeItem("draftPortfolio");
-      navigate("/lobby");
+      await uploadPortfolio(fd);
+      localStorage.removeItem("draftPortfolio"); // ลบ draft หลัง upload
+      navigate("/dashboard"); // กลับหน้า Dashboard
     } catch (err) {
       setError(err.message || "Upload error");
     } finally {
@@ -215,7 +214,7 @@ export default function UploadPortfolio() {
             v => setForm({ ...form, university: v }),
             showUniversityPopup,
             setShowUniversityPopup,
-            filters?.universityOptions,
+            filters?.universityOptions || [],
             uniRef
           )}
 
@@ -225,7 +224,7 @@ export default function UploadPortfolio() {
             v => setForm({ ...form, year: v }),
             showYearPopup,
             setShowYearPopup,
-            filters?.yearOptions,
+            filters?.yearOptions || [],
             yearRef
           )}
 
@@ -235,7 +234,7 @@ export default function UploadPortfolio() {
             v => setForm({ ...form, category: v }),
             showCategoryPopup,
             setShowCategoryPopup,
-            filters?.categoryOptions,
+            filters?.categoryOptions || [],
             catRef
           )}
 
@@ -262,7 +261,7 @@ export default function UploadPortfolio() {
               type="button"
               onClick={() => {
                 localStorage.setItem("draftPortfolio", JSON.stringify(form));
-                navigate("/lobby");
+                navigate("/edit-profile");
               }}
               style={{
                 flex: 1,
