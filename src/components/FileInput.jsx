@@ -44,7 +44,7 @@ export default function FileInput({ files, onChange }) {
           width: "100%",
           padding: 10,
           borderRadius: 8,
-          border: "1px solid #ccc",
+          background: "#fff",
           boxSizing: "border-box",
           marginBottom: 10,
         }}
@@ -58,10 +58,9 @@ export default function FileInput({ files, onChange }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                background: "#fff",
+                background: "#ded38bff",
                 padding: "3px 6px",
                 borderRadius: 6,
-                border: "1px solid #ccc",
                 fontSize: 12
               }}
             >
