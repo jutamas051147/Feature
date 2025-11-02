@@ -1,7 +1,7 @@
 // src/api/upload.js
 
 // BASE API URL จาก .env หรือ fallback เป็น localhost
-const BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+const BASE = import.meta.env.VITE_API_BASE;
 
 /**
  * Upload portfolio form with files
