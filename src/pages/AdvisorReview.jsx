@@ -1,14 +1,10 @@
-// src/pages/AdminReview.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPortfolioById, reviewPortfolio } from "../api/review"; // ฟังก์ชัน API PUT /api/portfolio/:id/review
+import { getPortfolioById, reviewAdvisor } from "../api/review"; // ฟังก์ชัน API PUT /api/portfolio/:id/review
 
-export default function AdminReview({ role }) {
+export default function AdvisorReview({  }) {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const bgColor = role === "superadmin" ? "#f7b500" : "#ffc1cc";
-
 
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +31,7 @@ useEffect(() => {
 
   const handleApprove = async () => {
     try {
-      await reviewPortfolio(id, { status: "approved" });
+      await reviewAdvisor(id, { status: "approved" });
       navigate("/admin/dashboard");
     } catch (err) {
       setError("Approve failed. Try again.");
@@ -49,7 +45,7 @@ useEffect(() => {
       return;
     }
     try {
-      await reviewPortfolio(id, { status: "rejected", comment: rejectComment });
+      await reviewAdvisor(id, { status: "rejected", comment: rejectComment });
       navigate("/admin/dashboard");
     } catch (err) {
       setError("Reject failed. Try again.");
@@ -67,7 +63,7 @@ useEffect(() => {
       justifyContent: "center",
       flexDirection: "column",
       boxSizing: "border-box",
-      backgroundColor: bgColor,
+      backgroundColor: "#ffc1cc",
       overflow: "hidden",
       position: "relative",
       padding: 20,
@@ -98,10 +94,10 @@ useEffect(() => {
         borderRadius: 12,
         padding: 20,
         boxSizing: "border-box",
-        backgroundColor: bgColor,
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
+        backgroundColor: "#ffc1cc",
         overflowY: "auto",
       }}
       >
@@ -236,3 +232,4 @@ useEffect(() => {
     </div>
   );
 }
+
