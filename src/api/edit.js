@@ -1,5 +1,5 @@
 // src/api/edit.js
-const BASE = import.meta.env.VITE_API_BASE;
+const BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:3000";
 
 export async function editPortfolio(id, formData) {
   const res = await fetch(`${BASE}/api/portfolio/${id}`, {
