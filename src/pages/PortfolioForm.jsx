@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { filters } from "../components/FilterPopup"; // หรือ path ตามไฟล์จริง
 
 
-export default function PortfolioForm() {
+export default function PortfolioForm({ filterData }) {
   const [form, setForm] = useState({
     title: "",
     university: "",
