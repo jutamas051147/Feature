@@ -3,8 +3,10 @@ import FileInput from "../components/FileInput";
 import { validateFiles } from "../utils/validators";
 import { editPortfolio } from "../api/edit";
 import { useNavigate, useParams } from "react-router-dom";
-import { filters } from "../components/FilterPopup"; // หรือ path ตามไฟล์จริง
 
+import UniversityFilterModal from "../components/UniversityFilterModal";
+import YearFilterModal from "../components/YearFilterModal";
+import CategoryFilterModal from "../components/CategoryFilterModal";
 
 export default function EditPage() {
   const { id } = useParams();
@@ -19,15 +21,7 @@ export default function EditPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [showUniversityPopup, setShowUniversityPopup] = useState(false);
-  const [showYearPopup, setShowYearPopup] = useState(false);
-  const [showCategoryPopup, setShowCategoryPopup] = useState(false);
-
   const navigate = useNavigate();
-
-  const uniRef = useRef(null);
-  const yearRef = useRef(null);
-  const catRef = useRef(null);
 
 useEffect(() => {
   const draft = localStorage.getItem(`draftPortfolio`);
@@ -66,67 +60,6 @@ useEffect(() => {
     }
   };
 
-  // ปิด popup ถ้าคลิกนอก
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (uniRef.current && !uniRef.current.contains(event.target)) setShowUniversityPopup(false);
-      if (yearRef.current && !yearRef.current.contains(event.target)) setShowYearPopup(false);
-      if (catRef.current && !catRef.current.contains(event.target)) setShowCategoryPopup(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const renderFilterField = (label, value, setValue, showPopup, setShowPopup, options, ref) => (
-    <div style={{ display: "flex", flexDirection: "column", width: "100%", marginBottom: 5, position: "relative" }} ref={ref}>
-      <label style={{ color: "white", marginBottom: 4 ,fontSize: 20}}>{label}</label>
-      <div style={{ position: "relative", width: "100%" }}>
-        <input
-          type="text"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #ccc", boxSizing: "border-box" }}
-        />
-        <div
-          onClick={() => setShowPopup(!showPopup)}
-          style={{
-            position: "absolute",
-            right: 10,
-            top: "50%",
-            transform: showPopup ? "translateY(-50%) rotate(180deg)" : "translateY(-50%) rotate(0deg)",
-            cursor: "pointer",
-            userSelect: "none",
-            fontSize: 12,
-            transition: "transform 0.2s"
-          }}
-        >▼</div>
-        {showPopup && options && (
-          <div style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            width: "100%",
-            background: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            zIndex: 10,
-            marginTop: 2,
-            maxHeight: 150,
-            overflowY: "auto"
-          }}>
-            {options.map(opt => (
-              <div key={opt} style={{ padding: "5px 10px", cursor: "pointer" }}
-                onClick={() => { setValue(opt); setShowPopup(false); }}
-              >
-                {opt}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div style={{
       height: "100vh",
@@ -162,7 +95,7 @@ useEffect(() => {
       <div style={{
         width: "100%",
         maxWidth: 1000,
-        height: "100%",
+        height: "calc(100vh - 40px)",
         backgroundColor: "#ff6b2b",
         borderRadius: 12,
         padding: 20,
@@ -171,6 +104,7 @@ useEffect(() => {
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
+        overflowX: "hidden",
       }}
     >
       <style>
@@ -213,36 +147,31 @@ useEffect(() => {
             />
           </div>
 
-          {/* Filter Fields */}
-          {renderFilterField(
-            "University :",
-            form.university,
-            v => setForm({ ...form, university: v }),
-            showUniversityPopup,
-            setShowUniversityPopup,
-            filters?.universityOptions || [],
-            uniRef
-          )}
+          {/* University Filter */}
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: "white", display: "block", marginBottom: 4 }}>University :</label>
+            <UniversityFilterModal
+              value={form.university}
+              onChange={v => setForm({ ...form, university: v })}
+            />
+          </div>
 
-          {renderFilterField(
-            "Year of project/work/prize :",
-            form.year,
-            v => setForm({ ...form, year: v }),
-            showYearPopup,
-            setShowYearPopup,
-            filters?.yearOptions || [],
-            yearRef
-          )}
+          {/* Year Filter */}
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ color: "white", display: "block", marginBottom: 4 }}>Year of project/work/prize :</label>
+            <YearFilterModal
+              value={form.year}
+              onChange={v => setForm({ ...form, year: v })}
+            />
+          </div>
 
-          {renderFilterField(
-            "Category :",
-            form.category,
-            v => setForm({ ...form, category: v }),
-            showCategoryPopup,
-            setShowCategoryPopup,
-            filters?.categoryOptions || [],
-            catRef
-          )}
+          {/* Category Filter */}
+          <div style={{ marginBottom: 10 }}>
+            <CategoryFilterModal
+              value={form.category}
+              onChange={v => setForm({ ...form, category: v })}
+            />
+          </div>
 
 
                     {/* FileInput */}
