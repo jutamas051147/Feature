@@ -1,11 +1,14 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import FileInput from "../components/FileInput";
 import { validateFiles } from "../utils/validators";
 import { uploadPortfolio } from "../api/upload";
 import { useNavigate } from "react-router-dom";
 
+import UniversityFilterModal from "../components/UniversityFilterModal";
+import YearFilterModal from "../components/YearFilterModal";
+import CategoryFilterModal from "../components/CategoryFilterModal";
 
-export default function PortfolioForm({ filtersComponents }) {
+export default function PortfolioForm() {
   const [form, setForm] = useState({
     title: "",
     university: "",
@@ -16,21 +19,7 @@ export default function PortfolioForm({ filtersComponents }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const [showUniversityPopup, setShowUniversityPopup] = useState(false);
-  const [showYearPopup, setShowYearPopup] = useState(false);
-  const [showCategoryPopup, setShowCategoryPopup] = useState(false);
-
   const navigate = useNavigate();
-
-  const uniRef = useRef(null);
-  const yearRef = useRef(null);
-  const catRef = useRef(null);
-
-  useEffect(() => {
-    const draft = localStorage.getItem("draftPortfolio");
-    if (draft) setForm(JSON.parse(draft));
-  }, []);
 
   const handleFileChange = (files) => setForm(f => ({ ...f, files }));
 
@@ -57,86 +46,6 @@ export default function PortfolioForm({ filtersComponents }) {
     }
   };
 
-  // ปิด popup ถ้าคลิกนอก
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (uniRef.current && !uniRef.current.contains(event.target)) setShowUniversityPopup(false);
-      if (yearRef.current && !yearRef.current.contains(event.target)) setShowYearPopup(false);
-      if (catRef.current && !catRef.current.contains(event.target)) setShowCategoryPopup(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const renderFilterField = (label, value, setValue, showPopup, setShowPopup, options, ref) => (
-    <div style={{ display: "flex", flexDirection: "column", width: "100%", marginBottom: 5, position: "relative" }} ref={ref}>
-      <label style={{ color: "white", marginBottom: 4 ,fontSize: 20}}>{label}</label>
-      <div style={{ position: "relative", width: "100%" }}>
-        <input
-          type="text"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #ccc", boxSizing: "border-box" }}
-        />
-        <div
-          onClick={() => setShowPopup(!showPopup)}
-          style={{
-            position: "absolute",
-            right: 10,
-            top: "50%",
-            transform: showPopup ? "translateY(-50%) rotate(180deg)" : "translateY(-50%) rotate(0deg)",
-            cursor: "pointer",
-            userSelect: "none",
-            fontSize: 12,
-            transition: "transform 0.2s"
-          }}
-        >▼</div>
-{showPopup && options && (
-  <>
-    {/* Overlay */}
-    <div
-      style={{
-        position: "fixed",
-        top: 0, left: 0, width: "100%", height: "100%",
-        background: "rgba(0,0,0,0.5)",
-        zIndex: 999
-      }}
-      onClick={() => setShowPopup(false)}
-    />
-    {/* Popup */}
-    <div
-      style={{
-        position: "fixed",
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "300px",
-        background: "#fff",
-        borderRadius: 8,
-        padding: 20,
-        zIndex: 1000,
-        maxHeight: 400,
-        overflowY: "auto"
-      }}
-    >
-      {options.map(opt => (
-        <div
-          key={opt}
-          style={{ padding: "10px", cursor: "pointer" }}
-          onClick={() => { setValue(opt); setShowPopup(false); }}
-        >
-          {opt}
-        </div>
-      ))}
-    </div>
-  </>
-)}
-
-  const filtersComponents = {
-    university: <UniversityFilterModal />,
-    year: <YearFilterModal />,
-    category: <CategoryFilterModal />
-  };
-        
   return (
     <div style={{
       height: "100vh",
@@ -152,8 +61,7 @@ export default function PortfolioForm({ filtersComponents }) {
       fontSize: 20,
       fontFamily: "sans-serif"
     }}>
-      
-      {/* กากบาทมุมบนขวา */}
+      {/* Close button */}
       <button
         onClick={() => navigate("/dashboard")}
         style={{
@@ -165,39 +73,40 @@ export default function PortfolioForm({ filtersComponents }) {
           fontSize: 50,
           fontWeight: "bold",
           cursor: "pointer",
-          color: "#ffffffff"
+          color: "#fff"
         }}
       >×</button>
 
       <div style={{
-        width: "100%",
-        maxWidth: 1000,
-        height: "100%",
-        backgroundColor: "#ffc1cc",
-        borderRadius: 12,
-        padding: 20,
-        boxSizing: "border-box",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        overflowY: "auto",
-      }}
-    >
+  width: "100%",
+  maxWidth: 1000,
+  height: "calc(100vh - 40px)", // หรือ height ตามต้องการ
+  backgroundColor: "#ffc1cc",
+  borderRadius: 12,
+  padding: 20,
+  boxSizing: "border-box",
+  margin: "0 auto",
+  display: "flex",
+  flexDirection: "column",
+  overflowY: "auto",  // scroll ขึ้นลง
+  overflowX: "hidden", // ป้องกัน scroll ซ้ายขวา
+}}>
       <style>
-        {`
-          ::-webkit-scrollbar {
-            width: 8px;               /* ความกว้าง scroll */
-          }
-          ::-webkit-scrollbar-track {
-            background: #f0f0f0;      /* สีพื้น scroll track */
-            border-radius: 4px;
-          }
-          ::-webkit-scrollbar-thumb {
-            background-color: #85a2bfff; /* สี scroll thumb */
-            border-radius: 4px;
-          }
-        `}
-      </style>
+{`
+  ::-webkit-scrollbar {
+    width: 8px; /* ความกว้าง scroll */
+  }
+  ::-webkit-scrollbar-track {
+    background: #f0f0f0; /* สีพื้น scroll track */
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #85a2bfff; /* สี scroll thumb */
+    border-radius: 4px;
+  }
+`}
+</style>
+
 
         <h2 style={{
           textAlign: "center",
@@ -206,14 +115,12 @@ export default function PortfolioForm({ filtersComponents }) {
           fontSize: 55,
           fontWeight: "bold",
           fontFamily: "Poppins"
-        }}>
-          Upload Portfolio
-        </h2>
+        }}>Upload Portfolio</h2>
 
         {error && <div style={{ color: "red", marginBottom: 15 }}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
-                    {/* Title */}
+          {/* Title */}
           <div style={{ marginBottom: 5 }}>
             <label style={{ color: "white", display: "block", marginBottom: 4 }}>Title :</label>
             <input
@@ -223,33 +130,33 @@ export default function PortfolioForm({ filtersComponents }) {
             />
           </div>
 
+          {/* University Filter */}
           <div style={{ marginBottom: 10 }}>
-            {filtersComponents?.university &&
-              React.cloneElement(filtersComponents.university, {
-                value: form.university,
-                onChange: v => setForm({ ...form, university: v })
-              })}
+            <label style={{ color: "white", display: "block", marginBottom: 4 }}>University :</label>
+            <UniversityFilterModal
+              value={form.university}
+              onChange={v => setForm({ ...form, university: v })}
+            />
           </div>
 
+          {/* Year Filter */}
           <div style={{ marginBottom: 10 }}>
-            {filtersComponents?.year &&
-              React.cloneElement(filtersComponents.year, {
-                value: form.year,
-                onChange: v => setForm({ ...form, year: v })
-              })}
+            <label style={{ color: "white", display: "block", marginBottom: 4 }}>Year of project/work/prize :</label>
+            <YearFilterModal
+              value={form.year}
+              onChange={v => setForm({ ...form, year: v })}
+            />
           </div>
 
+          {/* Category Filter */}
           <div style={{ marginBottom: 10 }}>
-            {filtersComponents?.category &&
-              React.cloneElement(filtersComponents.category, {
-                value: form.category,
-                onChange: v => setForm({ ...form, category: v })
-              })}
+            <CategoryFilterModal
+              value={form.category}
+              onChange={v => setForm({ ...form, category: v })}
+            />
           </div>
 
-
-
-                    {/* FileInput */}
+          {/* File Input */}
           <div style={{ marginBottom: 5 }}>
             <label style={{ color: "white", display: "block", marginBottom: 4}}>Attach Files (at least one picture max ten picture) :</label>
             <FileInput files={form.files} onChange={handleFileChange} />
@@ -304,6 +211,8 @@ export default function PortfolioForm({ filtersComponents }) {
         </form>
       </div>
     </div>
+  );
+}
   );
 }
 
