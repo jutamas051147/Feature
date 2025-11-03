@@ -92,32 +92,46 @@ export default function PortfolioForm() {
             transition: "transform 0.2s"
           }}
         >▼</div>
-        {showPopup && options && (
-          <div style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            width: "100%",
-            background: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            zIndex: 10,
-            marginTop: 2,
-            maxHeight: 150,
-            overflowY: "auto"
-          }}>
-            {options.map(opt => (
-              <div key={opt} style={{ padding: "5px 10px", cursor: "pointer" }}
-                onClick={() => { setValue(opt); setShowPopup(false); }}
-              >
-                {opt}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+{showPopup && options && (
+  <>
+    {/* Overlay */}
+    <div
+      style={{
+        position: "fixed",
+        top: 0, left: 0, width: "100%", height: "100%",
+        background: "rgba(0,0,0,0.5)",
+        zIndex: 999
+      }}
+      onClick={() => setShowPopup(false)}
+    />
+    {/* Popup */}
+    <div
+      style={{
+        position: "fixed",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "300px",
+        background: "#fff",
+        borderRadius: 8,
+        padding: 20,
+        zIndex: 1000,
+        maxHeight: 400,
+        overflowY: "auto"
+      }}
+    >
+      {options.map(opt => (
+        <div
+          key={opt}
+          style={{ padding: "10px", cursor: "pointer" }}
+          onClick={() => { setValue(opt); setShowPopup(false); }}
+        >
+          {opt}
+        </div>
+      ))}
     </div>
-  );
+  </>
+)}
+
 
   return (
     <div style={{
