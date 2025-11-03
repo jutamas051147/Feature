@@ -131,7 +131,12 @@ export default function PortfolioForm({ filtersComponents }) {
   </>
 )}
 
-
+  const filtersComponents = {
+    university: <UniversityFilterModal />,
+    year: <YearFilterModal />,
+    category: <CategoryFilterModal />
+  };
+        
   return (
     <div style={{
       height: "100vh",
