@@ -3,10 +3,9 @@ import FileInput from "../components/FileInput";
 import { validateFiles } from "../utils/validators";
 import { uploadPortfolio } from "../api/upload";
 import { useNavigate } from "react-router-dom";
-import { filters } from "../components/FilterPopup"; // หรือ path ตามไฟล์จริง
 
 
-export default function PortfolioForm({ filterData }) {
+export default function PortfolioForm({ filtersComponents }) {
   const [form, setForm] = useState({
     title: "",
     university: "",
@@ -219,36 +218,30 @@ export default function PortfolioForm({ filterData }) {
             />
           </div>
 
-          {/* Filter Fields */}
-          {renderFilterField(
-            "University :",
-            form.university,
-            v => setForm({ ...form, university: v }),
-            showUniversityPopup,
-            setShowUniversityPopup,
-            filters?.universityOptions || [],
-            uniRef
-          )}
+          <div style={{ marginBottom: 10 }}>
+            {filtersComponents?.university &&
+              React.cloneElement(filtersComponents.university, {
+                value: form.university,
+                onChange: v => setForm({ ...form, university: v })
+              })}
+          </div>
 
-          {renderFilterField(
-            "Year of project/work/prize :",
-            form.year,
-            v => setForm({ ...form, year: v }),
-            showYearPopup,
-            setShowYearPopup,
-            filters?.yearOptions || [],
-            yearRef
-          )}
+          <div style={{ marginBottom: 10 }}>
+            {filtersComponents?.year &&
+              React.cloneElement(filtersComponents.year, {
+                value: form.year,
+                onChange: v => setForm({ ...form, year: v })
+              })}
+          </div>
 
-          {renderFilterField(
-            "Category :",
-            form.category,
-            v => setForm({ ...form, category: v }),
-            showCategoryPopup,
-            setShowCategoryPopup,
-            filters?.categoryOptions || [],
-            catRef
-          )}
+          <div style={{ marginBottom: 10 }}>
+            {filtersComponents?.category &&
+              React.cloneElement(filtersComponents.category, {
+                value: form.category,
+                onChange: v => setForm({ ...form, category: v })
+              })}
+          </div>
+
 
 
                     {/* FileInput */}
