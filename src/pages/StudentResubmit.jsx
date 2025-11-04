@@ -1,4 +1,3 @@
-// src/pages/StudentResubmit.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FileInput from "../components/FileInput";
@@ -21,6 +20,25 @@ export default function StudentResubmit() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [showUniversityPopup, setShowUniversityPopup] = useState(false);
+  const [showYearPopup, setShowYearPopup] = useState(false);
+  const [showCategoryPopup, setShowCategoryPopup] = useState(false);
+
+  const uniRef = useRef(null);
+  const yearRef = useRef(null);
+  const catRef = useRef(null);
+
+  const filters = {
+    universityOptions: ["KMUTT", "KU", "SWU", "CU", "BU", "TU", "MU", "KMITL", "RSU"],
+    yearOptions: ["2020", "2021", "2022", "2023", "2024", "2025"],
+    categoryOptions: [
+      "AI", "ML", "BI", "QA", "UX/UI", "Database", "Software Engineering",
+      "IOT", "Gaming", "Web Development", "Coding", "Data Science",
+      "Hackathon", "Bigdata", "Data Analytics"
+    ]
+  };
+
+
   // โหลด draft/fall portfolio จาก localStorage หรือ API
   useEffect(() => {
     async function fetchPortfolio() {
@@ -35,7 +53,27 @@ export default function StudentResubmit() {
           files: data.files || [],
         });
       } catch (err) {
-        console.error("โหลดข้อมูลไม่สำเร็จ:", err);
+        //console.error("โหลดข้อมูลไม่สำเร็จ:", err);
+        console.warn("⚠️ โหลดข้อมูลจริงไม่ได้ ใช้ mock แทน:", err.message);
+        const mock = {
+          title: "Mock Portfolio Title",
+          university: "Chulalongkorn University",
+          year: "2024",
+          category: "Design",
+          desc: "This is mock portfolio content for testing.",
+          files: [{ name: "mock_portfolio.pdf" }],
+        };
+        setForm({
+          title: mock.title,
+          university: mock.university,
+          year: mock.year,
+          category: mock.category,
+          description: mock.desc,
+          files: mock.files,
+        });
+      }
+    }
+
     fetchPortfolio();
   }, [id]);
 
@@ -63,6 +101,88 @@ export default function StudentResubmit() {
       setLoading(false);
     }
   };
+
+  // ปิด popup ถ้าคลิกนอก
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (uniRef.current && !uniRef.current.contains(event.target)) setShowUniversityPopup(false);
+      if (yearRef.current && !yearRef.current.contains(event.target)) setShowYearPopup(false);
+      if (catRef.current && !catRef.current.contains(event.target)) setShowCategoryPopup(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const renderMultiFilter = (label, values, setValues, showPopup, setShowPopup, options, ref) => (
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", marginBottom: 5,fontSize: 12, position: "relative" }} ref={ref}>
+      <label style={{ color: "white", marginBottom: 4 ,fontSize: 20}}>{label}</label>
+      <div style={{ position: "relative", width: "100%" }}>
+        <div
+          onClick={() => setShowPopup(!showPopup)}
+          style={{
+            width: "100%",
+            padding: 10,
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            background: "#fff",
+            cursor: "pointer",
+            fontSize: 12,
+            boxSizing: "border-box",
+          }}
+        >
+          {values.length > 0 ? values.join(", ") : "Select..."}
+          <span style={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: showPopup ? "translateY(-50%) rotate(180deg)" : "translateY(-50%) rotate(0deg)",
+            fontSize: 12,
+            transition: "transform 0.2s",
+            userSelect: "none"
+          }}>▼</span>
+        </div>
+
+        {showPopup && options && (
+          <div style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            width: "100%",
+            background: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            zIndex: 10,
+            marginTop: 2,
+            maxHeight: 150,
+            overflowY: "auto"
+          }}>
+            {options.map(opt => {
+              const isSelected = values.includes(opt);
+              return (
+                <div key={opt}
+                  onClick={() => {
+                    if (isSelected) {
+                      setValues(values.filter(v => v !== opt));
+                    } else {
+                      setValues([...values, opt]);
+                    }
+                  }}
+                  style={{
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    background: isSelected ? "#d8e9ff" : "white",
+                    fontWeight: isSelected ? "bold" : "normal"
+                  }}
+                >
+                  {opt}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
@@ -99,7 +219,7 @@ export default function StudentResubmit() {
       <div style={{
         width: "100%",
         maxWidth: 1000,
-        height: "calc(100vh - 40px)",
+        height: "100%",
         backgroundColor: "#ff6b2b",
         borderRadius: 12,
         padding: 20,
@@ -108,7 +228,6 @@ export default function StudentResubmit() {
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
-        overflowX: "hidden",
       }}>
         <style>
           {`
@@ -150,31 +269,15 @@ export default function StudentResubmit() {
             />
           </div>
 
-          {/* University Filter */}
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ color: "white", display: "block", marginBottom: 4 }}>University :</label>
-            <UniversityFilterModal
-              value={form.university}
-              onChange={v => setForm({ ...form, university: v })}
-            />
-          </div>
+        {/* Multi-Select Filters */}
+          {renderMultiFilter("University :", form.university, v => setForm({ ...form, university: v }),
+            showUniversityPopup, setShowUniversityPopup, filters.universityOptions, uniRef)}
 
-          {/* Year Filter */}
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ color: "white", display: "block", marginBottom: 4 }}>Year of project/work/prize :</label>
-            <YearFilterModal
-              value={form.year}
-              onChange={v => setForm({ ...form, year: v })}
-            />
-          </div>
+          {renderMultiFilter("Year of project/work/prize :", form.year, v => setForm({ ...form, year: v }),
+            showYearPopup, setShowYearPopup, filters.yearOptions, yearRef)}
 
-          {/* Category Filter */}
-          <div style={{ marginBottom: 10 }}>
-            <CategoryFilterModal
-              value={form.category}
-              onChange={v => setForm({ ...form, category: v })}
-            />
-          </div>
+          {renderMultiFilter("Category :", form.category, v => setForm({ ...form, category: v }),
+            showCategoryPopup, setShowCategoryPopup, filters.categoryOptions, catRef)}
 
           {/* FileInput */}
           <div style={{ marginBottom: 5 }}>
