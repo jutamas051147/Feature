@@ -3,15 +3,14 @@ import FileInput from "../components/FileInput";
 import { validateFiles } from "../utils/validators";
 import { uploadPortfolio } from "../api/upload";
 import { useNavigate } from "react-router-dom";
-import { filters } from "../components/FilterPopup"; // หรือ path ตามไฟล์จริง
 
 
 export default function UploadPortfolio() {
   const [form, setForm] = useState({
     title: "",
-    university: "",
-    year: "",
-    category: "",
+    university: [],
+    year: [],
+    category: [],
     description: "",
     files: []
   });
@@ -28,6 +27,16 @@ export default function UploadPortfolio() {
   const yearRef = useRef(null);
   const catRef = useRef(null);
 
+  const filters = {
+    universityOptions: ["KMUTT", "KU", "SWU", "CU", "BU", "TU", "MU", "KMITL", "RSU"],
+    yearOptions: ["2020", "2021", "2022", "2023", "2024", "2025"],
+    categoryOptions: [
+      "AI", "ML", "BI", "QA", "UX/UI", "Database", "Software Engineering",
+      "IOT", "Gaming", "Web Development", "Coding", "Data Science",
+      "Hackathon", "Bigdata", "Data Analytics"
+    ]
+  };
+
   useEffect(() => {
     const draft = localStorage.getItem("draftPortfolio");
     if (draft) setForm(JSON.parse(draft));
@@ -43,17 +52,17 @@ export default function UploadPortfolio() {
 
     const fd = new FormData();
     fd.append("title", form.title);
-    fd.append("university", form.university);
-    fd.append("year", form.year);
-    fd.append("category", form.category);
-    fd.append("description", form.description);
-    form.files.forEach(file => fd.append("files", file));
+    fd.append("desc", form.description);
+    fd.append("university", JSON.stringify(form.university));
+    fd.append("year", JSON.stringify(form.year));
+    fd.append("category", JSON.stringify(form.category));
+    form.files.forEach(file => fd.append("file", file));
 
     try {
       const result = await uploadPortfolio(fd);
       console.log("uploaded:", result);
       localStorage.removeItem("draftPortfolio");
-      navigate("/lobby");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Upload error");
     } finally {
@@ -72,29 +81,35 @@ export default function UploadPortfolio() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const renderFilterField = (label, value, setValue, showPopup, setShowPopup, options, ref) => (
-    <div style={{ display: "flex", flexDirection: "column", width: "100%", marginBottom: 5, position: "relative" }} ref={ref}>
+  const renderMultiFilter = (label, values, setValues, showPopup, setShowPopup, options, ref) => (
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", marginBottom: 5,fontSize: 12, position: "relative" }} ref={ref}>
       <label style={{ color: "white", marginBottom: 4 ,fontSize: 20}}>{label}</label>
       <div style={{ position: "relative", width: "100%" }}>
-        <input
-          type="text"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #ccc", boxSizing: "border-box" }}
-        />
         <div
           onClick={() => setShowPopup(!showPopup)}
           style={{
+            width: "100%",
+            padding: 10,
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            background: "#fff",
+            fontSize: 12,
+            cursor: "pointer",
+            boxSizing: "border-box",
+          }}
+        >
+          {values.length > 0 ? values.join(", ") : "Select..."}
+          <span style={{
             position: "absolute",
             right: 10,
             top: "50%",
             transform: showPopup ? "translateY(-50%) rotate(180deg)" : "translateY(-50%) rotate(0deg)",
-            cursor: "pointer",
-            userSelect: "none",
             fontSize: 12,
-            transition: "transform 0.2s"
-          }}
-        >▼</div>
+            transition: "transform 0.2s",
+            userSelect: "none"
+          }}>▼</span>
+        </div>
+
         {showPopup && options && (
           <div style={{
             position: "absolute",
@@ -109,13 +124,28 @@ export default function UploadPortfolio() {
             maxHeight: 150,
             overflowY: "auto"
           }}>
-            {options.map(opt => (
-              <div key={opt} style={{ padding: "5px 10px", cursor: "pointer" }}
-                onClick={() => { setValue(opt); setShowPopup(false); }}
-              >
-                {opt}
-              </div>
-            ))}
+            {options.map(opt => {
+              const isSelected = values.includes(opt);
+              return (
+                <div key={opt}
+                  onClick={() => {
+                    if (isSelected) {
+                      setValues(values.filter(v => v !== opt));
+                    } else {
+                      setValues([...values, opt]);
+                    }
+                  }}
+                  style={{
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    background: isSelected ? "#d8e9ff" : "white",
+                    fontWeight: isSelected ? "bold" : "normal"
+                  }}
+                >
+                  {opt}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -140,7 +170,7 @@ export default function UploadPortfolio() {
       
       {/* กากบาทมุมบนขวา */}
       <button
-        onClick={() => navigate("/lobby")}
+        onClick={() => navigate("/dashboard")}
         style={{
           position: "absolute",
           top: 20,
@@ -208,36 +238,15 @@ export default function UploadPortfolio() {
             />
           </div>
 
-          {/* Filter Fields */}
-          {renderFilterField(
-            "University :",
-            form.university,
-            v => setForm({ ...form, university: v }),
-            showUniversityPopup,
-            setShowUniversityPopup,
-            filters?.universityOptions,
-            uniRef
-          )}
+        {/* Multi-Select Filters */}
+          {renderMultiFilter("University :", form.university, v => setForm({ ...form, university: v }),
+            showUniversityPopup, setShowUniversityPopup, filters.universityOptions, uniRef)}
 
-          {renderFilterField(
-            "Year of project/work/prize :",
-            form.year,
-            v => setForm({ ...form, year: v }),
-            showYearPopup,
-            setShowYearPopup,
-            filters?.yearOptions,
-            yearRef
-          )}
+          {renderMultiFilter("Year of project/work/prize :", form.year, v => setForm({ ...form, year: v }),
+            showYearPopup, setShowYearPopup, filters.yearOptions, yearRef)}
 
-          {renderFilterField(
-            "Category :",
-            form.category,
-            v => setForm({ ...form, category: v }),
-            showCategoryPopup,
-            setShowCategoryPopup,
-            filters?.categoryOptions,
-            catRef
-          )}
+          {renderMultiFilter("Category :", form.category, v => setForm({ ...form, category: v }),
+            showCategoryPopup, setShowCategoryPopup, filters.categoryOptions, catRef)}
 
 
                     {/* FileInput */}
@@ -262,7 +271,7 @@ export default function UploadPortfolio() {
               type="button"
               onClick={() => {
                 localStorage.setItem("draftPortfolio", JSON.stringify(form));
-                navigate("/lobby");
+                navigate("/PortfolioDetail");
               }}
               style={{
                 flex: 1,
@@ -297,4 +306,3 @@ export default function UploadPortfolio() {
     </div>
   );
 }
-
