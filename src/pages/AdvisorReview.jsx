@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { reviewAdvisor } from "../api/review"; // ฟังก์ชัน API PUT /api/portfolio/:id/review
+import { getPortfolioById, reviewAdvisor } from "../api/review"; // ฟังก์ชัน API PUT /api/portfolio/:id/review
 
 export default function AdvisorReview({  }) {
   const { id } = useParams();
@@ -12,21 +12,37 @@ export default function AdvisorReview({  }) {
   const [rejectComment, setRejectComment] = useState("");
 
 useEffect(() => {
-  const data = {
-      title: "My Portfolio – Graphic Design",
-      university: "ABC University",
-      year: "2025",
-      category: "UI/UX",
-      description: "รวมผลงานออกแบบ UI ที่ทำในปี 2025",
-      files: [
-        { name: "design-portfolio.pdf", url: "#" },
-        { name: "ui-wireframe.png", url: "#" },
-        { name: "ux-flow.jpg", url: "#" }
-      ],
-      feedback: "ควรเพิ่มรายละเอียดในส่วน UX และโครงสร้างการออกแบบค่ะ"
-    };
-    setPortfolio(data);
-    setLoading(false);
+    async function fetchPortfolio() {
+      try {
+        // ✅ ดึงข้อมูลจริงจาก backend
+        const data = await getPortfolioById(id);
+        setPortfolio(data);
+      } catch (err) {
+        //console.error("❌ โหลดข้อมูลจาก backend ไม่สำเร็จ:", err.message);
+        //setError("ไม่สามารถโหลดข้อมูล Portfolio ได้");
+        console.warn("⚠️ โหลดข้อมูลจริงไม่ได้ ใช้ mock แทน:", err.message);
+
+        // ✅ mock data สำหรับตอน backend ยังไม่พร้อม
+        const mock = {
+          title: "My Portfolio – Graphic Design",
+          university: "ABC University",
+          year: "2025",
+          category: "UI/UX",
+          description: "รวมผลงานออกแบบ UI ที่ทำในปี 2025",
+          files: [
+            { name: "design-portfolio.pdf", url: "#" },
+            { name: "ui-wireframe.png", url: "#" },
+            { name: "ux-flow.jpg", url: "#" },
+          ],
+          feedback: "ควรเพิ่มรายละเอียดในส่วน UX และโครงสร้างการออกแบบค่ะ",
+        };
+        setPortfolio(mock);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPortfolio();
   }, [id]);
 
   const handleApprove = async () => {
