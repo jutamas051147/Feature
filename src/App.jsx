@@ -5,7 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import PortfolioDetail from "./pages/PortfolioDetail";
 import EditPage from "./pages/EditPage";
 import StudentResubmit from "./pages/StudentResubmit";
-import AdminReview from "./pages/AdvisorReview";
+import AdvisorReview from "./pages/AdvisorReview";
 import SuperReview from "./pages/SuperReview";
 import AdminDashboard from "./pages/AdminDashboard";
 import PortfolioFail from "./pages/PortfolioFail";
@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/PortfolioDetail" element={<PortfolioDetail />} />
         <Route path="/editpage/:id" element={<EditPage />} />
         <Route path="/resubmit/:id" element={<StudentResubmit />} />
-        <Route path="/admin/review/:id" element={<AdminReview />} />
+        <Route path="/admin/review/:id" element={<AdvisorReview />} />
         <Route path="/admin/super-review/:id" element={<SuperReview />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/fail-status-error" element={<PortfolioFail />} />
