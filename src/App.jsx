@@ -8,6 +8,7 @@ import StudentResubmit from "./pages/StudentResubmit";
 import AdminReview from "./pages/AdvisorReview";
 import SuperReview from "./pages/SuperReview";
 import AdminDashboard from "./pages/AdminDashboard";
+import PortfolioFail from "./pages/PortfolioFail";
 
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/admin/review/:id" element={<AdminReview />} />
         <Route path="/admin/super-review/:id" element={<SuperReview />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/fail-status-error" element={<PortfolioFail />} />
       </Routes>
     </div>
   );
