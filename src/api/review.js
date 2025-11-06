@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE" || "http://127.0.0.1:3000";
+const BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:3000";
 
 export async function getPortfolioById(id) {
   const res = await fetch(`${BASE}/api/portfolio/${id}`);
@@ -26,4 +26,5 @@ export async function reviewSuper(id, body) {
   });
   return await res.json();
 }
+
 
